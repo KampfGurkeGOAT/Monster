@@ -89,25 +89,10 @@
     .column h2 {
       border-bottom: 2px solid var(--border);
       padding-bottom: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       font-size: 1.1em;
-    }
-
-    .column h2 button {
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 0 8px;
-      cursor: pointer;
-      font-size: 0.8em;
-      display: none;
-    }
-
-    .column.delete-mode h2 button {
-      display: inline;
+      text-align: center;
+      display: block;
+      margin-bottom: 10px;
     }
 
     label {
@@ -189,6 +174,24 @@
   let checked = JSON.parse(localStorage.getItem("monsterChecked")) || {};
   let deleteMode = false;
 
+  // Preset beim ersten Laden
+  if (Object.keys(data).length === 0) {
+    data = {
+      "Original / Core": [
+        "Original", "Zero Sugar", "Lo-Carb", "Assault", "The Doctor (VR46)"
+      ],
+      "Ultra": [
+        "Ultra (White)", "Ultra Paradise", "Ultra Red", "Ultra Peachy Keen"
+      ],
+      "Juice / Punch": [
+        "Mango Loco", "Pacific Punch", "Khaotic"
+      ],
+      "Reserve": [
+        "Reserve Pineapple", "Reserve Watermelon"
+      ]
+    };
+  }
+
   function save() {
     localStorage.setItem("monsterData", JSON.stringify(data));
     localStorage.setItem("monsterChecked", JSON.stringify(checked));
@@ -202,25 +205,9 @@
     Object.entries(data).forEach(([category, items]) => {
       const col = document.createElement("div");
       col.className = "column";
-      if (deleteMode) col.classList.add("delete-mode");
 
       const h2 = document.createElement("h2");
       h2.textContent = category;
-
-      if (deleteMode) {
-        const delCatBtn = document.createElement("button");
-        delCatBtn.textContent = "X";
-        delCatBtn.onclick = () => {
-          if (confirm(`Kategorie "${category}" wirklich löschen?`)) {
-            delete data[category];
-            items.forEach(item => delete checked[item]);
-            save();
-            render();
-          }
-        };
-        h2.appendChild(delCatBtn);
-      }
-
       col.appendChild(h2);
 
       items.forEach(item => {
@@ -318,4 +305,4 @@
 </script>
 
 </body>
-  </html>
+</html>
