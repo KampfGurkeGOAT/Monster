@@ -140,7 +140,6 @@
       margin-top: 10px;
     }
 
-    /* Pop-Up Styling (später erweiterbar) */
     #newCategoryName {
       margin-left: 10px;
     }
@@ -171,16 +170,8 @@
 <div class="columns" id="columns"></div>
 
 <script>
-  const standardData = {
-    "Original / Core": ["Original", "Zero Sugar", "Lo-Carb", "Assault", "The Doctor (VR46)", "LH44", "Gronk", "Super Cola", "Heavy Metal", "Unleaded", "Dub", "Mad Dog", "Baller’s Blend", "Top Speed"],
-    "Ultra": ["Ultra (White)", "Ultra Black", "Ultra Red", "Ultra Blue", "Ultra Paradise", "Ultra Fiesta (Mango)", "Ultra Watermelon", "Ultra Gold", "Ultra Sunrise", "Ultra Rosá", "Ultra Violet", "Ultra Strawberry Dreams", "Ultra Peachy Keen", "Ultra Citron", "Ultra Blue Hawaii"],
-    "Juice / Punch": ["Mango Loco", "Khaotic", "Pacific Punch", "Pipeline Punch", "Rio Punch", "Papillon (Monarch)", "Punch Mixxd", "Ripper", "Viking Berry"],
-    "Reserve": ["Reserve Pineapple", "Reserve Watermelon", "Reserve Dreamsicle", "Reserve Kiwi Strawberry", "Reserve Peaches’n Cream"],
-    "Nitro": ["Nitro Super Dry", "Nitro Cosmic Peach"],
-    "Maxx": ["Maxx Super Dry", "Maxx Eclipse", "Maxx Solaris", "Maxx Mango Matic", "Maxx Rad Red"]
-  };
-
-  let data = JSON.parse(localStorage.getItem("monsterData")) || structuredClone(standardData);
+  // Kein Preset
+  let data = JSON.parse(localStorage.getItem("monsterData")) || {};
   let checked = JSON.parse(localStorage.getItem("monsterChecked")) || {};
   let deleteMode = false;
 
