@@ -25,7 +25,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: 'Segoe UI', sans-serif;
-      padding: 10px;
+      padding: 20px;
       margin: 0;
       transition: background 0.3s, color 0.3s;
       touch-action: manipulation;
@@ -33,7 +33,6 @@
 
     h1 {
       text-align: center;
-      font-size: 1.5em;
       margin-bottom: 10px;
     }
 
@@ -41,14 +40,13 @@
     .progress-container,
     .menu-container {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     #search, #newCategoryName {
-      padding: 8px;
+      padding: 10px;
       font-size: 1em;
-      width: 90%;
-      max-width: 300px;
+      width: 300px;
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--text);
@@ -58,8 +56,8 @@
       background: var(--border);
       border-radius: 10px;
       overflow: hidden;
-      height: 20px;
-      max-width: 90%;
+      height: 24px;
+      max-width: 500px;
       margin: 0 auto;
     }
 
@@ -69,48 +67,52 @@
       width: 0%;
       color: white;
       text-align: center;
-      line-height: 20px;
+      line-height: 24px;
       transition: width 0.3s ease;
-      font-size: 0.8em;
     }
 
     .columns {
-      display: block;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
     }
 
     .column {
       background: var(--card);
       border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 15px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
     }
 
     .column h2 {
       border-bottom: 2px solid var(--border);
       padding-bottom: 5px;
-      font-size: 1.1em;
-      text-align: center;
-      display: block;
-      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .column h2 button {
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0 8px;
+      cursor: pointer;
+      font-size: 0.8em;
+      display: none;
+    }
+
+    .column.delete-mode h2 button {
+      display: inline;
     }
 
     label {
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
       margin: 6px 0;
-      font-size: 1em;
-      font-weight: bold;
-    }
-
-    label span {
-      flex: none;
-    }
-
-    label input[type="checkbox"] {
-      transform: scale(1.2);
     }
 
     .delete-btn {
@@ -118,14 +120,13 @@
       color: white;
       border: none;
       border-radius: 5px;
-      padding: 0 6px;
+      padding: 0 8px;
       cursor: pointer;
-      margin-left: 10px;
     }
 
     .menu-container button,
     .column button {
-      margin: 5px 5px 0;
+      margin: 5px;
       padding: 8px 12px;
       font-size: 0.9em;
       border: none;
@@ -136,12 +137,12 @@
     }
 
     .column .add-sort-btn {
-      display: block;
-      margin: 10px auto 0;
+      margin-top: 10px;
     }
 
+    /* Pop-Up Styling (später erweiterbar) */
     #newCategoryName {
-      margin-top: 5px;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -162,7 +163,7 @@
 <div class="menu-container">
   <button onclick="toggleDarkMode()">🌙/☀️ Dark/Light</button>
   <button onclick="toggleDeleteMode()">🗑️ Löschmodus</button>
-  <button onclick="showAddCategory()">➕ Neue Spalte</button><br>
+  <button onclick="showAddCategory()">➕ Neue Spalte</button>
   <input type="text" id="newCategoryName" placeholder="Neue Kategorie..." style="display:none;" />
   <button onclick="addCategory()" style="display:none;" id="addCatBtn">Hinzufügen</button>
 </div>
@@ -170,27 +171,18 @@
 <div class="columns" id="columns"></div>
 
 <script>
-  let data = JSON.parse(localStorage.getItem("monsterData")) || {};
+  const standardData = {
+    "Original / Core": ["Original", "Zero Sugar", "Lo-Carb", "Assault", "The Doctor (VR46)", "LH44", "Gronk", "Super Cola", "Heavy Metal", "Unleaded", "Dub", "Mad Dog", "Baller’s Blend", "Top Speed"],
+    "Ultra": ["Ultra (White)", "Ultra Black", "Ultra Red", "Ultra Blue", "Ultra Paradise", "Ultra Fiesta (Mango)", "Ultra Watermelon", "Ultra Gold", "Ultra Sunrise", "Ultra Rosá", "Ultra Violet", "Ultra Strawberry Dreams", "Ultra Peachy Keen", "Ultra Citron", "Ultra Blue Hawaii"],
+    "Juice / Punch": ["Mango Loco", "Khaotic", "Pacific Punch", "Pipeline Punch", "Rio Punch", "Papillon (Monarch)", "Punch Mixxd", "Ripper", "Viking Berry"],
+    "Reserve": ["Reserve Pineapple", "Reserve Watermelon", "Reserve Dreamsicle", "Reserve Kiwi Strawberry", "Reserve Peaches’n Cream"],
+    "Nitro": ["Nitro Super Dry", "Nitro Cosmic Peach"],
+    "Maxx": ["Maxx Super Dry", "Maxx Eclipse", "Maxx Solaris", "Maxx Mango Matic", "Maxx Rad Red"]
+  };
+
+  let data = JSON.parse(localStorage.getItem("monsterData")) || structuredClone(standardData);
   let checked = JSON.parse(localStorage.getItem("monsterChecked")) || {};
   let deleteMode = false;
-
-  // Preset beim ersten Laden
-  if (Object.keys(data).length === 0) {
-    data = {
-      "Original / Core": [
-        "Original", "Zero Sugar", "Lo-Carb", "Assault", "The Doctor (VR46)"
-      ],
-      "Ultra": [
-        "Ultra (White)", "Ultra Paradise", "Ultra Red", "Ultra Peachy Keen"
-      ],
-      "Juice / Punch": [
-        "Mango Loco", "Pacific Punch", "Khaotic"
-      ],
-      "Reserve": [
-        "Reserve Pineapple", "Reserve Watermelon"
-      ]
-    };
-  }
 
   function save() {
     localStorage.setItem("monsterData", JSON.stringify(data));
@@ -205,9 +197,25 @@
     Object.entries(data).forEach(([category, items]) => {
       const col = document.createElement("div");
       col.className = "column";
+      if (deleteMode) col.classList.add("delete-mode");
 
       const h2 = document.createElement("h2");
       h2.textContent = category;
+
+      if (deleteMode) {
+        const delCatBtn = document.createElement("button");
+        delCatBtn.textContent = "X";
+        delCatBtn.onclick = () => {
+          if (confirm(`Kategorie "${category}" wirklich löschen?`)) {
+            delete data[category];
+            items.forEach(item => delete checked[item]);
+            save();
+            render();
+          }
+        };
+        h2.appendChild(delCatBtn);
+      }
+
       col.appendChild(h2);
 
       items.forEach(item => {
